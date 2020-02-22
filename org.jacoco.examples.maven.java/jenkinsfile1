@@ -1,0 +1,29 @@
+pipeline {
+	agent any 
+	stages {
+		stage('scmcheckout') {
+			steps {
+				git branch: 'master', url: 'https://github.com/rohitanair/myfirstpipeline.git'
+			}
+		}
+		stage('validate code') {
+			steps {
+				withMaven(jdk: 'localjdk-1.8', maven: 'localmaven') {
+					// some block
+					sh 'mvn validate'
+				}
+			}
+		}
+		stage('Sonar and maven package') {
+			steps {
+				withSonarQubeEnv(credentialsId: 'jenkinsonar') {
+					withMaven(jdk: 'localjdk-1.8', maven: 'localmaven') {
+					// some block
+					sh 'clean mvn install sonar:sonar'
+				}
+				}
+			}
+		}
+		
+	}
+}
